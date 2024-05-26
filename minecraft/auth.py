@@ -132,7 +132,7 @@ def check_minecraft_profile(token):
 
 if __name__ == "__main__":
     a = generate_device_code()
-    print(a)
+    print(f"Please go to {a['verification_uri']} and enter {a['user_code']} to authenticate")
     b = None
     while True:
         b = exchange_device_code(a["device_code"])
