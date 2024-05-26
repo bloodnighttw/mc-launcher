@@ -129,24 +129,25 @@ def check_minecraft_profile(token):
     return response.json()
 
 
-a = generate_device_code()
-print(a)
-b = None
-while True:
-    b = exchange_device_code(a["device_code"])
-    if "error" in b:
-        if b["error"] == "authorization_pending":
-            time.sleep(a["interval"])  # Wait for the user to authenticate next loop
-        elif b["error"] == "authorization_declined":
-            print("Authorization declined")  # Failed
-            break
-        elif b["error"] == "expired_token":
-            print("Expired token")  # Failed
-            break
-    else:
-        break  # Success
 
 if __name__ == "__main__":
+    a = generate_device_code()
+    print(a)
+    b = None
+    while True:
+        b = exchange_device_code(a["device_code"])
+        if "error" in b:
+            if b["error"] == "authorization_pending":
+                time.sleep(a["interval"])  # Wait for the user to authenticate next loop
+            elif b["error"] == "authorization_declined":
+                print("Authorization declined")  # Failed
+                break
+            elif b["error"] == "expired_token":
+                print("Expired token")  # Failed
+                break
+        else:
+            break  # Success
+
     print(b["access_token"])
     c = xbox_live_authenticate(b["access_token"])
     print(c)
