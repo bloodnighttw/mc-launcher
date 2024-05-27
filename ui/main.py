@@ -24,8 +24,9 @@ from .page4 import Page4
 
 class Main(tk.Tk):
 
-    def __init__(self):
+    def __init__(self, skin_preview):
         super().__init__()
+        self.skin_preview = skin_preview
 
         # Configure Window
         self.title("Themes")
@@ -41,7 +42,7 @@ class Main(tk.Tk):
 
         self.sidebar_frame = SideBar(self)
         self.page1 = Page1(self.my_notebook, log_event=self.logging)
-        self.page2 = Page2(self.my_notebook, log_event=self.logging)
+        self.page2 = Page2(self.my_notebook, log_event=self.logging, skin_preview=self.skin_preview)
         self.page3 = Page3(self, self.my_notebook, log_event=self.logging)
         self.page4 = Page4(self.my_notebook, log_event=self.logging)
 

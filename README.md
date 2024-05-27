@@ -11,3 +11,9 @@
 - 視窗本體在 `/ui` 資料夾，編輯各自負責的頁面即可。別亂編輯別人的部分。影響merge
 
 - `/example ` 資料夾有我們上課學過的所有功能，執行`uiexample.py`參考套件如何用
+
+
+Source
+
+Skin Viewer: https://github.com/earthiverse/3D-Minecraft-Skin-Viewer
+Skins: https://namemc.com/minecraft-skins
