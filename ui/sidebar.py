@@ -11,7 +11,7 @@ class SideBar(ttk.Frame):
         self.grid_rowconfigure(2, weight=1)
 
         # Label
-        self.logo_label = ttk.Label(self, text="Tkinter Project")
+        self.logo_label = ttk.Label(self, text="Mincraft Launcher Project")
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
 
         # Seperator 

@@ -7,10 +7,12 @@ Switch Version
 '''
 
 class Page1(ttk.Frame):
-    def __init__(self, parent, log_event):
+    def __init__(self,  main, parent):
         super().__init__(parent)
-        self.log_event = log_event
+        self.main = main
         self.parent = parent
+
+        
         self.grid_rowconfigure((0, 1), weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure((1, 2), weight=0)
@@ -180,43 +182,43 @@ class Page1(ttk.Frame):
         var = ""
         for i in indexes:
             var += f"{i}, "
-        self.log_event(f"Listbox chosen {var}")
+        self.main.logging(f"Listbox chosen {var}")
 
     def optionmenu_event(self, *args):
         var = self.optionmenu_variable.get()
         print(var, args, *args)  # Debugging info
-        self.log_event(f"Optionmenu chosen {var}")
+        self.main.logging(f"Optionmenu chosen {var}")
 
     def combobox_event(self, *args):
         var = self.combobox.get()
-        self.log_event(f"Combobox chosen {var}")
+        self.main.logging(f"Combobox chosen {var}")
 
     def spinbox_event(self, *args):
         var = self.spinbox.get()
-        self.log_event(f"Spinbox changed to {var}")
+        self.main.logging(f"Spinbox changed to {var}")
         if self.progress_value < 100:
             interval = int(self.spinbox.get()) 
             self.after_cancel(self.progress_id)  # Cancel previous after() call
             self.after(interval, self.update_progress)  # Restart progress with new speed  
 
     def button_event(self):
-        self.log_event("Button Clicked")
+        self.main.logging("Button Clicked")
 
     def radiobutton_event(self, *args):
         var = self.radio_var.get()
-        self.log_event(f"Radiobutton chosen {var}")
+        self.main.logging(f"Radiobutton chosen {var}")
 
     def checkbox_event_1(self, *args):
         var = self.checkbox_1.instate(["selected"])
-        self.log_event(f"Checkbox1 chosen {var}")
+        self.main.logging(f"Checkbox1 chosen {var}")
 
     def checkbox_event_2(self, *args):
         var = self.checkbox_2.instate(["selected"])
-        self.log_event(f"Checkbox2 chosen {var}")
+        self.main.logging(f"Checkbox2 chosen {var}")
 
     def checkbox_event_3(self, *args):
         var = self.checkbox_3.instate(["selected"])
-        self.log_event(f"Checkbox3 chosen {var}")
+        self.main.logging(f"Checkbox3 chosen {var}")
 
     def scale_event(self, *args):
         var = self.scale.get()

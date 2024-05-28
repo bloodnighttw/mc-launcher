@@ -11,9 +11,9 @@ About us, Help, Support
 '''
 
 class Page4(ttk.Frame):
-    def __init__(self, parent, log_event):
+    def __init__(self, main,  parent):
         super().__init__(parent)
-        self.log_event = log_event
+        self.main = main
         self.parent = parent
 
         # Initialization

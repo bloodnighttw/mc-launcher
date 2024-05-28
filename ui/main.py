@@ -21,12 +21,18 @@ from .page1 import Page1
 from .page2 import Page2
 from .page3 import Page3
 from .page4 import Page4
+import json
 
 class Main(tk.Tk):
 
     def __init__(self, skin_preview):
         super().__init__()
         self.skin_preview = skin_preview
+        self.SETTINGS_PATH = 'settings.json'
+        self.settings_data = {}
+        with open(self.SETTINGS_PATH, 'r') as file:
+                self.settings_data =  json.load(file)
+        
 
         # Configure Window
         self.title("Themes")
@@ -41,16 +47,16 @@ class Main(tk.Tk):
         self.my_notebook.grid(row=0, column=1, sticky="nsew")
 
         self.sidebar_frame = SideBar(self)
-        self.page1 = Page1(self.my_notebook, log_event=self.logging)
-        self.page2 = Page2(self.my_notebook, log_event=self.logging, skin_preview=self.skin_preview)
-        self.page3 = Page3(self, self.my_notebook, log_event=self.logging)
-        self.page4 = Page4(self.my_notebook, log_event=self.logging)
+        self.page1 = Page1(self, self.my_notebook)
+        self.page2 = Page2(self, self.my_notebook)
+        self.page3 = Page3(self, self.my_notebook)
+        self.page4 = Page4(self, self.my_notebook)
 
         self.sidebar_frame.grid(row=0, column=0, sticky="nsew")
-        self.my_notebook.add(self.page1, text="Page 1")
-        self.my_notebook.add(self.page2, text="Page 2")
-        self.my_notebook.add(self.page3, text="Page 3")
-        self.my_notebook.add(self.page4, text="Page 4")
+        self.my_notebook.add(self.page1, text="Game")
+        self.my_notebook.add(self.page2, text="Skin")
+        self.my_notebook.add(self.page3, text="Settings")
+        self.my_notebook.add(self.page4, text="About Us")
 
         # Configure Menu
         self.my_menu = tk.Menu(self)
@@ -108,7 +114,28 @@ class Main(tk.Tk):
         self.logging(f"Changed to theme: {name}")
 
     def logging(self, message):
+        # Used for logging, pass one string parameter as message
         self.sidebar_frame.log(message)
+
+    def settings(self, *args):
+        '''
+        Read write settings.json file. 
+
+        First argument: key
+        Second argument(optional): value
+
+        Passing key only will return the value; 
+        passing key and value will set the value.
+        '''
+        if len(args) == 1:
+            # with open(self.SETTINGS_PATH, 'r') as file:
+            #     self.data = json.load(file)
+            return self.settings_data[args[0]]
+        elif len(args) == 2:
+            # self.data = {args[0]: args[1]}
+            self.settings_data[args[0]] = args[1]
+            with open(self.SETTINGS_PATH, 'w') as file:
+                json.dump(self.settings_data, file)
 
     def change_font(self, code):
         print(code)
