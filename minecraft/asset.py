@@ -138,15 +138,15 @@ if __name__ == "__main__":
     classpath += f"client.jar"
     native = "libraries"
     token = "Token not Provide"
-    asset = ""
+    asset = "assets/"
+    print(classpath)
 
     os.chdir("temp")
     os.system(f"java "
               f"-Djava.library.path={native} "
-              f"-Dorg.lwjgl.system.SharedLibraryExtractPath={native} "
               f"-cp {classpath} "
               f"net.minecraft.client.main.Main "
               f"--accessToken {token} "
               f"--version {test['id']} "
-              f"--assetsDir {asset}"
-              f"--assetIndex {12}")
+              f"--assetsDir {asset} "
+              f"--assetIndex 12")
