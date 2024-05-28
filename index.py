@@ -4,7 +4,11 @@
 # 4. 啟動MC/切換版本: 控制執行緒啟動不同版本: 許振維
 
 import ui
+import skin
+def skin_preview(skin_name):
+    skin_app = skin.SkinWin(skin_name=skin_name)
+    # skin_app.mainloop()
 
 if __name__ == "__main__":
-    app = ui.Main()
+    app = ui.Main(skin_preview)
     app.mainloop()
