@@ -11,382 +11,231 @@ About us, Help, Support
 '''
 
 class Page4(ttk.Frame):
-    def __init__(self, parent, log_event):
-        super().__init__(parent)
-        self.log_event = log_event
+    def __init__(self,  main, parent):
+        super().__init__()
+        self.main = main
         self.parent = parent
-
-        # Initialization
-        self.grid_rowconfigure(2, weight=1)
-        self.grid_rowconfigure((0, 1, 3), weight=0)
+        
+        self.grid_rowconfigure((0, 1), weight=1)
         self.grid_columnconfigure(0, weight=1)
-        self.bind("<Control-KeyPress-i>", self.entry_prev)
-        self.bind("<Return>", self.keyboard_enter)
-        self.buffer_entry = ["", ""]  # Buffer for entry
-        self.buffer = []  # Buffer for undo and redo
+        self.grid_columnconfigure((1, 2), weight=0)
 
-        # First frame section
+        # Listbox, Scrollbar
         self.frame1 = ttk.Frame(self)
-        self.frame1.grid(row=0, column=0, sticky="nsew")
-        self.frame1.grid_columnconfigure((0, 1, 2, 3), weight=1)
+        self.frame1.grid(row=0, column=0, sticky="nsew", padx=20, pady=(20, 0))
+        self.frame1.grid_rowconfigure(0, weight=1)
+        self.frame1.grid_columnconfigure(0, weight=1)
 
-        self.label_name = ttk.Label(self.frame1, text="Name:")
-        self.label_name.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
-
-        self.label_score = ttk.Label(self.frame1, text="Score:")
-        self.label_score.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
-
-        self.str_name = tk.StringVar()
-        self.entry_name = ttk.Entry(self.frame1, textvariable=self.str_name)
-        self.entry_name.grid(
-            row=0, column=1, columnspan=2, padx=10, pady=10, sticky="ew"
-        )
-
-        self.str_score = tk.StringVar()
-        self.entry_score = ttk.Entry(self.frame1, textvariable=self.str_score)
-        self.entry_score.grid(
-            row=1, column=1, columnspan=2, padx=10, pady=10, sticky="ew"
-        )
-
-        self.button_undo = ttk.Button(self.frame1, text="Undo", command=self.undo)
-        self.button_undo["state"] = "disabled"
-        self.button_undo.grid(row=0, column=3, padx=10, pady=10, sticky="ew")
-
-        self.button_redo = ttk.Button(self.frame1, text="Redo", command=self.redo)
-        self.button_redo["state"] = "disabled"
-        self.button_redo.grid(row=1, column=3, padx=10, pady=10, sticky="ew")
-
-        self.button_add = ttk.Button(self.frame1, text="Add", command=self.add)
-        self.button_add.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
-
-        self.button_add = ttk.Button(self.frame1, text="Search", command=self.search)
-        self.button_add.grid(row=2, column=1, padx=10, pady=10, sticky="ew")
-
-        self.button_add = ttk.Button(self.frame1, text="Delete", command=self.delete)
-        self.button_add.grid(row=2, column=2, padx=10, pady=10, sticky="ew")
-
-        self.button_add = ttk.Button(self.frame1, text="Update", command=self.update)
-        self.button_add.grid(row=2, column=3, padx=10, pady=10, sticky="ew")
-
-        # Second frame section
-        self.frame2 = ttk.Frame(self)
-        self.frame2.grid(row=1, column=0, sticky="nsew")
-        self.frame2.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
-
-        self.option_sort_name = tk.StringVar()
-        self.option_sort = tk.BooleanVar()  # True: ascending
-        self.option_show_deleted = tk.BooleanVar()  # True: show deleted items
-
-        self.radio_sort_name = ttk.Radiobutton(
-            self.frame2,
-            text="Sort by Name",
-            variable=self.option_sort_name,
-            value="name",
-            command=self.showlists,
-        )
-        self.radio_sort_name.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
-
-        self.radio_sort_score = ttk.Radiobutton(
-            self.frame2,
-            text="Sort by Score",
-            variable=self.option_sort_name,
-            value="score",
-            command=self.showlists,
-        )
-        self.radio_sort_score.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
-
-        self.radio_sort_name = ttk.Radiobutton(
-            self.frame2,
-            text="Ascending",
-            variable=self.option_sort,
-            value=False,
-            command=self.showlists,
-        )
-        self.radio_sort_name.grid(row=0, column=2, padx=10, pady=10, sticky="ew")
-
-        self.radio_sort_score = ttk.Radiobutton(
-            self.frame2,
-            text="Descending",
-            variable=self.option_sort,
-            value=True,
-            command=self.showlists,
-        )
-        self.radio_sort_score.grid(row=0, column=3, padx=10, pady=10, sticky="ew")
-
-        self.radio_sort_name = ttk.Checkbutton(
-            self.frame2,
-            text="Show Deleted",
-            variable=self.option_show_deleted,
-            command=self.showlists,
-        )
-        self.radio_sort_name.grid(row=0, column=4, padx=10, pady=10, sticky="ew")
-
-        self.option_sort_name.set("name")
-        self.option_sort.set(False)
-        self.option_show_deleted.set(False)
-
-        # Third frame section
-        self.frame3 = ttk.Frame(self)
-        self.frame3.grid(row=2, column=0, sticky="nsew")
-        self.frame3.grid_rowconfigure(0, weight=1)
-        self.frame3.grid_columnconfigure(0, weight=1)
-
-        self.scrollbar_x = ttk.Scrollbar(self.frame3, orient="horizontal")
-        self.scrollbar_x.grid(row=1, column=0, sticky="swe")
-
-        self.scrollbar_y = ttk.Scrollbar(self.frame3, orient="vertical")
-        self.scrollbar_y.grid(row=0, column=1, sticky="nse")
-
-        self.lists = []  # Used to store current items
-        self.deleted = []  # Used to store deleted items
         self.listbox = tk.Listbox(
-            self.frame3,
-            xscrollcommand=self.scrollbar_x.set,
-            yscrollcommand=self.scrollbar_y.set,
-            selectmode="extended",
+            self.frame1,
+            selectmode="extended"  # selectmode=multiple
         )
+        self.listbox.bind("<<ListboxSelect>>", self.listbox_event)
+        for i in range(100):
+            self.listbox.insert(tk.END, "*" * i)
         self.listbox.grid(row=0, column=0, sticky="nsew")
 
-        self.scrollbar_x.config(command=self.listbox.xview)
-        self.scrollbar_y.config(command=self.listbox.yview)
+        self.scrollbar_x = ttk.Scrollbar(
+            self.frame1, orient="horizontal", command=self.listbox.xview
+        )
+        self.scrollbar_x.grid(row=1, column=0, sticky="ew")
 
-        # Fourth frame section
+        self.scrollbar_y = ttk.Scrollbar(
+            self.frame1, orient="vertical", command=self.listbox.yview
+        )
+        self.scrollbar_y.grid(row=0, column=1, sticky="ns")
+
+        self.listbox.config(yscrollcommand=self.scrollbar_y.set)
+        self.listbox.config(xscrollcommand=self.scrollbar_x.set)
+
+        # Optionmenu, Combobox, Spinbox
+        self.frame2 = ttk.Frame(self, width=250)
+        self.frame2.grid(row=0, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        self.frame2.grid_rowconfigure((0, 1, 2), weight=1)
+
+        self.optionmenu_values = ["Value 1", "Value 2", "Value 3"]
+        self.optionmenu_variable = tk.StringVar(self)
+        self.optionmenu = ttk.OptionMenu(
+            self.frame2,
+            self.optionmenu_variable,
+            *self.optionmenu_values,
+            command=self.optionmenu_event,
+        )
+        self.optionmenu.grid(row=0, padx=20, pady=(10, 5), sticky="ew")
+
+        self.combobox_values = ["Value 1", "Value 2", "Value Long Long Long"]
+        self.combobox_variable = tk.StringVar(self)
+        self.combobox = ttk.Combobox(
+            self.frame2,
+            values=self.combobox_values,
+            textvariable=self.combobox_variable,
+        )
+        self.combobox.bind("<<ComboboxSelected>>", self.combobox_event)
+        self.combobox.current(0)
+        self.combobox.grid(row=1, padx=20, pady=5, sticky="ew")
+
+        self.spinbox = ttk.Spinbox(
+            self.frame2, from_=0, to=10
+        )
+        self.spinbox.set(6)
+        self.spinbox.bind("<FocusOut>", self.spinbox_event)
+        self.spinbox.grid(row=2, padx=20, pady=5, sticky="ew")
+
+        # Button, Entry, Variable, Radiobutton, Checkbox
+        self.frame3 = ttk.Frame(self, width=250)
+        self.frame3.grid(
+            row=0, column=2, rowspan=2, padx=20, pady=(20, 0), sticky="nsew"
+        )
+        self.frame3.grid_rowconfigure((0, 1, 2, 3, 4, 5, 6, 7, 8), weight=1)
+
+        self.button = ttk.Button(self.frame3, text="Button", command=self.button_event)
+        self.button.grid(row=0, padx=20, pady=(20, 10), sticky="ew")
+
+        self.button_disabled = ttk.Button(
+            self.frame3, text="Disabled Button", state="disabled"
+        )
+        self.button_disabled.grid(row=1, padx=20, pady=10, sticky="ew")
+
+        self.entry = ttk.Entry(self.frame3)
+        self.entry.grid(row=2, padx=20, pady=10, sticky="ew")
+
+        self.radio_var = tk.IntVar(value=0)
+        self.radiobutton = ttk.Radiobutton(
+            self.frame3,
+            variable=self.radio_var,
+            value=0,
+            text="Radio Button 1",
+            command=self.radiobutton_event,
+        )
+        self.radiobutton.grid(row=3, pady=10, padx=20, sticky="ew")
+        self.radio_button_2 = ttk.Radiobutton(
+            self.frame3,
+            variable=self.radio_var,
+            value=1,
+            text="Radio Button 2",
+            command=self.radiobutton_event,
+        )
+        self.radio_button_2.grid(row=4, pady=10, padx=20, sticky="ew")
+        self.radio_button_3 = ttk.Radiobutton(
+            self.frame3,
+            variable=self.radio_var,
+            value=2,
+            text="Radio Button 3",
+            command=self.radiobutton_event,
+        )
+        self.radio_button_3.grid(row=5, pady=10, padx=20, sticky="ew")
+
+        self.checkbox_1 = ttk.Checkbutton(
+            self.frame3, text="Checkbox 1", command=self.checkbox_event_1
+        )
+        self.checkbox_1.grid(row=6, pady=10, padx=20, sticky="ew")
+        self.checkbox_2 = ttk.Checkbutton(
+            self.frame3, text="Checkbox 2", command=self.checkbox_event_2
+        )
+        self.checkbox_2.grid(row=7, pady=10, padx=20, sticky="ew")
+        self.checkbox_3 = ttk.Checkbutton(
+            self.frame3, text="Checkbox 3", command=self.checkbox_event_3
+        )
+        self.checkbox_3.grid(row=8, pady=(10, 20), padx=20, sticky="ew")
+        self.checkbox_1.state(["selected"])
+
+        # Progressbar, Scale
         self.frame4 = ttk.Frame(self)
-        self.frame4.grid(row=3, column=0, sticky="nsew")
-        self.frame4.grid_columnconfigure((0, 1), weight=1)
-
-        self.button_generate = ttk.Button(
-            self.frame4, text="Generate data", command=self.generate
+        self.frame4.grid(
+            row=1, column=0, columnspan=2, padx=(20, 0), pady=20, sticky="sew"
         )
-        self.button_generate.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
+        self.frame4.grid_columnconfigure((0, 2), weight=0)
+        self.frame4.grid_columnconfigure(1, weight=1)
 
-        self.label_select = ttk.Label(self.frame4, text="Selected Score:")
-        self.label_select.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+        self.label_progressbar_1 = ttk.Label(self.frame4, text="Progressbar")
+        self.label_progressbar_1.grid(
+            row=0, column=0, padx=(20, 10), pady=(10, 0), sticky="nw"
+        )
+        self.progressbar_1 = ttk.Progressbar(self.frame4)
+        self.progressbar_1.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
 
+        self.label_scale = ttk.Label(self.frame4, text="Scale")
+        self.label_scale.grid(row=1, column=0, padx=(20, 10), pady=(10, 0), sticky="nw")
         self.scale = ttk.Scale(
-            self.frame4, from_=0, to=100, orient="horizontal", command=self.update_scale
+            self.frame4, from_=0, to=100, orient="horizontal", command=self.scale_event
         )
-        self.scale.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
-        self.scale.set(0)
+        self.scale.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
 
-    # When enter is pressed, decide whether to add or update
-    def keyboard_enter(self, *args):
-        entry_name = self.entry_name.get()
-        for i in range(len(self.lists)):
-            if self.lists[i][0] == entry_name:
-                self.update()
-                return
-        self.add()
-
-    # Generate 15 random listbox items
-    def generate(self):
-        for _ in range(15):
-            name = "".join(random.choices(string.ascii_letters, k=3))
-            score = str(random.randint(0, 100))
-            self.str_name.set(name)
-            self.str_score.set(score)
-            self.add()
-
-    def redo(self):
-        for item in self.buffer:
-            if item[2] == "add":
-                self.lists.append([item[0], item[1]])
-            elif item[2] == "delete":
-                for i in range(len(self.lists)):
-                    if self.lists[i][0] == item[0]:
-                        self.lists.pop(i)
-                        self.deleted.append([item[0], item[1]])
-                        break
-            elif item[2] == "update":
-                for i in range(len(self.lists)):
-                    if self.lists[i][0] == item[0]:
-                        self.lists[i][1] = item[1]
-                        break
-
-        self.showlists()
-        self.button_redo["state"] = tk.DISABLED
-        self.button_undo["state"] = tk.NORMAL
-
-    def undo(self):
-        for item in self.buffer:
-            if item[2] == "add":
-                for i in range(len(self.lists)):
-                    if self.lists[i][0] == item[0]:
-                        self.lists.pop(i)
-                        break
-            elif item[2] == "delete":
-                for i in range(len(self.deleted)):
-                    if self.deleted[i][0] == item[0]:
-                        self.deleted.pop(i)
-                        self.lists.append([item[0], item[1]])
-                        break
-            elif item[2] == "update":
-                for i in range(len(self.lists)):
-                    if self.lists[i][0] == item[0]:
-                        temp = self.lists[i][1]
-                        self.lists[i][1] = item[1]
-                        item[1] = temp
-                        break
-
-        self.showlists()
-        self.button_redo["state"] = tk.NORMAL
-        self.button_undo["state"] = tk.DISABLED
-
-    # Use to update entry when CTRL + I is pressed
-    def update_entry(self, *args):
-        self.buffer_entry = [str(self.str_name.get()), str(self.str_score.get())]
-        print(self.buffer_entry)  ##
-        self.str_name.set("")
-        self.str_score.set("")
-
-    # Use to toggle previous entry
-    def entry_prev(self, *args):
-        temp = [self.str_name.get(), self.str_score.get()]
-        self.str_name.set(self.buffer_entry[0])
-        self.str_score.set(self.buffer_entry[1])
-        self.buffer_entry = temp
-
-    # Use to update listbox after making changes
-    def showlists(self, threshold=0):
-        # Sort based on option
-        self.lists.sort(
-            key=lambda x: x[0] if self.option_sort_name.get() == "name" else int(x[1]),
-            reverse=self.option_sort.get(),
+        self.label_progressbar_2 = ttk.Label(
+            self.frame4, text="Adjust Spinbox"
         )
+        self.label_progressbar_2.grid(
+            row=2, column=0, padx=(20, 10), pady=(10, 0), sticky="nw"
+        )
+        self.progressbar_2 = ttk.Progressbar(self.frame4)
+        self.progressbar_2.grid(row=2, column=1, padx=10, pady=(10, 20), sticky="ew")
 
-        # Add to list box
-        self.listbox.delete(0, tk.END)
-        for i in range(len(self.lists)):
-            if int(self.lists[i][1]) >= threshold:
-                self.listbox.insert(tk.END, self.lists[i][0] + " - " + self.lists[i][1])
+        self.progressbar_3 = ttk.Progressbar(self.frame4, mode="indeterminate", orient="vertical", value=70)
+        self.progressbar_3.grid(
+            row=0, column=2, rowspan=3, padx=(10, 20), pady=20, sticky="ns"
+        )
+        self.progressbar_3.start()
 
-        # Show deleted items
-        if self.option_show_deleted.get():
-            self.deleted.sort(
-                key=lambda x: x[0] if self.option_sort_name.get() == "name" else x[1],
-                reverse=self.option_sort.get(),
-            )
-            for i in range(len(self.deleted)):
-                if int(self.lists[i][1]) >= threshold:
-                    self.listbox.insert(
-                        tk.END, f"Deleted: {self.deleted[i][0]} - {self.deleted[i][1]}"
-                    )
+        self.progress_value = 0
+        self.progress_id = None
+        self.update_progress()
 
-    # Add new item to lists
-    def add(self):
-        name = self.str_name.get()
-        score = self.str_score.get()
+    def listbox_event(self, *args):
+        indexes = self.listbox.get(self.listbox.curselection())
+        var = ""
+        for i in indexes:
+            var += f"{i}, "
+        self.main.logging(f"Listbox chosen {var}")
 
-        if not score.isdigit():
-            messagebox.showerror("Error", "Score must be a digit")
-            self.update_entry()
-            return
-        if int(score) < 0 or int(score) > 100:
-            messagebox.showerror("Error", "Score must be between 0 and 100")
-            self.update_entry()
-            return
-        for i in range(len(self.lists)):
-            if self.lists[i][0] == name:
-                messagebox.showerror("Error", "Name already exists!")
-                self.update_entry()
-                return
-        self.lists.append([name, score])
+    def optionmenu_event(self, *args):
+        var = self.optionmenu_variable.get()
+        print(var, args, *args)  # Debugging info
+        self.main.logging(f"Optionmenu chosen {var}")
 
-        # Add to buffer for redo
-        self.buffer.clear()
-        self.buffer.append([name, score, "add"])
-        self.button_undo["state"] = tk.NORMAL
+    def combobox_event(self, *args):
+        var = self.combobox.get()
+        self.main.logging(f"Combobox chosen {var}")
 
-        self.showlists()
-        self.update_entry()
+    def spinbox_event(self, *args):
+        var = self.spinbox.get()
+        self.main.logging(f"Spinbox changed to {var}")
+        if self.progress_value < 100:
+            interval = int(self.spinbox.get()) 
+            self.after_cancel(self.progress_id)  # Cancel previous after() call
+            self.after(interval, self.update_progress)  # Restart progress with new speed  
 
-    # Search for item from list
-    def search(self):
-        name = self.entry_name.get()
-        for i in range(len(self.lists)):
-            if self.lists[i][0] == name:
-                messagebox.showinfo(
-                    f"Search Result", f"{self.lists[i][0]} - {self.lists[i][1]}"
-                )
-                return
-        messagebox.showinfo("Search Result", f"Name {name} not found!")
-        self.update_entry()
+    def button_event(self):
+        self.main.logging("Button Clicked")
 
-    # Delete item from list
-    def delete(self):
-        # A list to delete multiple items
-        names = []
+    def radiobutton_event(self, *args):
+        var = self.radio_var.get()
+        self.main.logging(f"Radiobutton chosen {var}")
 
-        # Delete from entry
-        entry__name = self.str_name.get()
-        name_found = False
-        if entry__name:
-            for i in range(len(self.lists)):
-                if self.lists[i][0] == entry__name:
-                    names.append(entry__name)
-                    name_found = True
-                    break
-            if not name_found:
-                messagebox.showerror("Error", f"Name {entry__name} not found!")
+    def checkbox_event_1(self, *args):
+        var = self.checkbox_1.instate(["selected"])
+        self.main.logging(f"Checkbox1 chosen {var}")
 
-        # Delete from selection
-        selected_indiced = self.listbox.curselection()
-        for i in selected_indiced:
-            name = self.listbox.get(i).split(" - ")[0]
-            names.append(name)
+    def checkbox_event_2(self, *args):
+        var = self.checkbox_2.instate(["selected"])
+        self.main.logging(f"Checkbox2 chosen {var}")
 
-        self.buffer.clear()
-        # Delete from listbox
-        for name in names:
-            for i in range(len(self.lists)):
-                if self.lists[i][0] == name:
-                    self.deleted.append(self.lists[i])
+    def checkbox_event_3(self, *args):
+        var = self.checkbox_3.instate(["selected"])
+        self.main.logging(f"Checkbox3 chosen {var}")
 
-                    # Add to buffer for redo
-                    self.buffer.append([name, self.lists[i][1], "delete"])
-                    self.lists.pop(i)
-                    self.button_undo["state"] = tk.NORMAL
-                    break
+    def scale_event(self, *args):
+        var = self.scale.get()
+        self.progressbar_1["value"] = var
 
-        self.showlists()
-        self.update_entry()
-
-    # Update the score from the list
-    def update(self):
-        # Update scores with the given name
-        name = self.str_name.get()
-        score = self.str_score.get()
-        old_score = None
-        if not score.isdigit():
-            messagebox.showerror("Error", "Score must be a digit")
-            self.update_entry()
-            return
-        if int(score) < 0 or int(score) > 100:
-            messagebox.showerror("Error", "Score must be between 0 and 100")
-            self.update_entry()
-            return
-        name_found = False
-        for i in range(len(self.lists)):
-            if self.lists[i][0] == name:
-                old_score = self.lists[i][1]
-                self.lists[i][1] = score
-                name_found = True
-                break
-        if not name_found:
-            messagebox.showerror("Error", f"Name {name} not found!")
-
-        # Add to buffer for redo
-        self.buffer.clear()
-        if old_score is not None:
-            self.buffer.append([name, old_score, "update"])
-            self.button_undo["state"] = tk.NORMAL
-
-        self.showlists()
-        self.update_entry()
-
-    # Update the scale when the scale has changed
-    def update_scale(self, *args):
-        threshold = self.scale.get()
-        self.label_select["text"] = "Selected Score: " + str(int(threshold))
-        self.showlists(threshold)
-        pass
+    def update_progress(self, *args):
+        self.progress_value += 1
+        self.progressbar_2["value"] = self.progress_value
+        if self.progress_value < 100:
+            interval = int(self.spinbox.get())
+            self.after(interval, self.update_progress)
+        else:
+            self.progress_value = 0
+            self.progressbar_2["value"] = 0
+            interval = int(self.spinbox.get())
+            self.after(interval, self.update_progress)   
+    

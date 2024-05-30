@@ -7,7 +7,6 @@ import ui
 import skin
 def skin_preview(skin_name):
     skin_app = skin.SkinWin(skin_name=skin_name)
-    # skin_app.mainloop()
 
 if __name__ == "__main__":
     app = ui.Main(skin_preview)
