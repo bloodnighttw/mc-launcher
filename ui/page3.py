@@ -1,10 +1,31 @@
-# Source: https://medium.com/@fareedkhandev/modern-gui-using-tkinter-12da0b983e22
-
 import tkinter as tk
 from tkinter import ttk
+import os
 
 """
 Settings
+
+
+Naming Format
+
+self.label_<...> = ttk.Label(self.frame, text="...")
+self.label_<...>.grid(...)
+
+self.settings_<...>_values = (...)
+self.settings_<...> = ttk.Combobox(
+    self.frame, values=self.settings_<...>_values, state="readonly"
+)
+self.settings_<...>.bind(
+    "<<ComboboxSelected>>", self.settings_<...>_event
+)
+self.settings_<...>.current(self.settings_<...>_values.index(self.main.settings("<...>")))
+self.settings_<...>.grid(...)
+
+def settings_<...>_event(self, *args):
+    value = self.settings_<...>.get()
+    self.main.settings("<...>", value)
+    self.main.logging(...)
+
 """
 
 
@@ -26,15 +47,18 @@ class Page3(ttk.Frame):
         self.frame1.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
         self.frame1.grid_columnconfigure((0, 1), weight=1)
 
-        # Font Settings (not completed)
+        # Font Style
         self.label_font_style = ttk.Label(self.frame1, text="Font")
         self.label_font_style.grid(row=0, column=0, sticky="nsw")
 
         self.settings_font_style_values = (
+            "Minecraft",
+            "MinecraftTen",
             "Arial",
-            "Times New Roman",
-            "Courier New",
-            "Verdana",
+            "Calibri",  # 93
+            "Consolas",  # 119
+            "Microsoft JhengHei",  # 221
+            "Times New Roman",  # 332
         )
         self.settings_font_style = ttk.Combobox(
             self.frame1, values=self.settings_font_style_values, state="readonly"
@@ -42,10 +66,12 @@ class Page3(ttk.Frame):
         self.settings_font_style.bind(
             "<<ComboboxSelected>>", self.settings_font_style_event
         )
-        self.settings_font_style.current(self.settings_font_style_values.index(self.main.settings("font")))
+        self.settings_font_style.current(
+            self.settings_font_style_values.index(self.main.settings("font"))
+        )
         self.settings_font_style.grid(row=0, column=1, sticky="nsew")
 
-        # Font Size (not completed)
+        # Font Size
         self.label_font_size = ttk.Label(self.frame1, text="Font Size")
         self.label_font_size.grid(row=1, column=0, sticky="nsw")
 
@@ -56,7 +82,9 @@ class Page3(ttk.Frame):
         self.settings_font_size.bind(
             "<<ComboboxSelected>>", self.settings_font_size_event
         )
-        self.settings_font_size.current(self.settings_font_size_values.index(self.main.settings("font_size")))
+        self.settings_font_size.current(
+            self.settings_font_size_values.index(self.main.settings("font_size"))
+        )
         self.settings_font_size.grid(row=1, column=1, sticky="nsew")
 
         """
@@ -77,7 +105,9 @@ class Page3(ttk.Frame):
         self.settings_windows_style.bind(
             "<<ComboboxSelected>>", self.settings_windows_style_event
         )
-        self.settings_windows_style.current(self.settings_windows_style_values.index(self.main.settings("window_style")))
+        self.settings_windows_style.current(
+            self.settings_windows_style_values.index(self.main.settings("window_style"))
+        )
         self.settings_windows_style.grid(row=1, column=1, sticky="nsew")
 
         # Windows Size Settings
@@ -91,45 +121,48 @@ class Page3(ttk.Frame):
         self.settings_windows_size.bind(
             "<<ComboboxSelected>>", self.settings_windows_size_event
         )
-        self.settings_windows_size.current(self.settings_windows_size_values.index(self.main.settings("window_size")))
+        self.settings_windows_size.current(
+            self.settings_windows_size_values.index(self.main.settings("window_size"))
+        )
         self.settings_windows_size.grid(row=0, column=1, sticky="nsew")
 
         # Run initialization on widget
         self.settings_windows_size_event()
-
-
+        self.settings_windows_style_event()
+        self.settings_font_size_event()
+        self.settings_font_style_event()
 
     def settings_font_style_event(self, *args):
         value = self.settings_font_style.get()
         self.main.settings("font", value)
+        size = self.settings_font_size.get()
+        font_sizes = {"small": 8, "medium": 12, "large": 16}
+        self.main.style.configure(".", font=(value, font_sizes[size]))
         self.main.logging(f"Settings: changed font to {value}")
-        # ...
 
     def settings_font_size_event(self, *args):
         value = self.settings_font_size.get()
         self.main.settings("font_size", value)
+        style = self.settings_font_style.get()
+        font_sizes = {"small": 8, "medium": 12, "large": 16}
+        self.main.style.configure(".", font=(style, font_sizes[value]))
         self.main.logging(f"Settings: changed font size to {value}")
-        # ...
 
     def settings_windows_style_event(self, *args):
         value = self.settings_windows_style.get()
         self.main.settings("window_style", value)
+        self.main.style.theme_use(value)
         self.main.logging(f"Settings: changed windows style to {value}")
 
     def settings_windows_size_event(self, *args):
         value = self.settings_windows_size.get()
         self.main.settings("window_size", value)
         if value == "full":
-            # Fullscreen
-            pass
+            self.main.attributes("-fullscreen", True)
             return
-    
-        if value == "small":
-            scale = 0.8
-        elif value == "medium":
-            scale = 1
-        elif value == "large":
-            scale = 1.2
+        self.main.attributes("-fullscreen", False)
+        ratio = {"small": 0.8, "medium": 1, "large": 1.2}
+        scale = ratio[value]
         self.main.wm_geometry(
             f"{int(self.main.default_width*scale)}x{int(self.main.default_height*scale)}"
         )

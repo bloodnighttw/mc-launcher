@@ -7,6 +7,8 @@
 
 ##### 筆記
 
+- [報告鏈接](https://docs.google.com/presentation/d/112dPtY5mKqVvaQrIk79BKTkvZOtf3zyT7nGj-qk0eAk/edit?usp=sharing)
+
 - 跑 `index.py` 開始程式
 
 - 視窗本體在 `/ui` 資料夾，編輯各自負責的頁面即可。別亂編輯別人的部分。影響merge
@@ -27,3 +29,4 @@
 
 Skin Viewer: https://github.com/earthiverse/3D-Minecraft-Skin-Viewer
 Skins: https://namemc.com/minecraft-skins
+Minecraft Font: https://www.fontspace.com/category/minecraft (Free for personal use)

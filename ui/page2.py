@@ -41,12 +41,9 @@ class Page2(ttk.Frame):
         self.button_skin_preview.grid(row=0, column=2, sticky="ew", padx=10)
 
     def event_skin_preview(self):
-        self.main.logging("Preview skin")
         self.main.skin_preview(self.skin_path)
 
     def event_skin(self):
-        # Choose skin
-        self.main.logging("Changing skin")
         self.new_skin_path = filedialog.askopenfilename(initialdir="skin/skins")
         if self.new_skin_path:
             self.new_skin_path = os.path.basename(self.new_skin_path)
