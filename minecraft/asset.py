@@ -1,6 +1,5 @@
 import concurrent.futures
 import json
-import os
 import platform
 import urllib.request
 
@@ -37,22 +36,23 @@ def get_version_info(versions_data):
     return response.json()
 
 
+temp = platform.system()
+osname = ""
+if temp == "Windows":
+    osname = "windows"
+elif temp == "Darwin":
+    osname = "osx"
+elif temp == "Linux":
+    osname = "linux"
+
+
 # https://wiki.vg/Game_files#Libraries
 # Return List of url of libraries you need to download.
 def get_libraries_download_list(version_info):
-    temp = platform.system()
-    os = ""
-    if temp == "Windows":
-        os = "windows"
-    elif temp == "Darwin":
-        os = "osx"
-    elif temp == "Linux":
-        os = "linux"
-
     download_list = []
     for i in version_info["libraries"]:
         if "rules" in i:
-            if i["rules"][0]["action"] != "allow" or i["rules"][0]["os"]["name"] != os:
+            if not (i["rules"][0]["action"] == "allow" and "os" in i["rules"][0] and i["rules"][0]["os"]["name"] == osname):
                 continue
 
         url_and_path = {
@@ -77,7 +77,7 @@ def get_asset_list(indexes):
     for i in indexes["objects"].values():
         sha1 = i["hash"]
         fullname = f"{sha1[:2]}/{sha1}"
-        url_and_path ={
+        url_and_path = {
             "url": f"https://resources.download.minecraft.net/{fullname}",
             "path": f"assets/objects/{fullname}"
         }
@@ -88,16 +88,6 @@ def get_asset_list(indexes):
 def get_client_url(version):
     response = requests.get(version["url"]).json()
     return response["downloads"]["client"]["url"]
-
-
-# only for test
-def download(i):
-    if not os.path.exists(os.path.dirname(f"temp/{i['path']}")):
-        os.makedirs(os.path.dirname(f"temp/{i['path']}"))
-    elif os.path.exists(f"temp/{i['path']}"):
-        return
-    print(f"Download {i['url']} to temp/{i['path']}")
-    urllib.request.urlretrieve(i["url"], f"temp/{i['path']}")
 
 
 # A small download function and a simple minecraft launcher, just for testing!
@@ -116,14 +106,15 @@ if __name__ == "__main__":
     version = get_version_info(test)
     b = get_libraries_download_list(version)
     indexes = get_index_list(version)
-    if not os.path.exists("temp/assets/indexes"):
-        os.makedirs("temp/assets/indexes")
+    if not osname.path.exists("temp/assets/indexes"):
+        osname.makedirs("temp/assets/indexes")
     with open(f"temp/assets/indexes/{version['assetIndex']['id']}.json", "w") as f:
         f.write(json.dumps(indexes))
     c = get_asset_list(indexes)
     client_url = get_client_url(test)
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=11) as executor:  # Download multiple files is io bound, we can use ThreadPoolExecutor to speed up the download speed
+    with concurrent.futures.ThreadPoolExecutor(
+            max_workers=11) as executor:  # Download multiple files is io bound, we can use ThreadPoolExecutor to speed up the download speed
         for i in b:
             executor.submit(download, i)
         for i in c:
@@ -141,8 +132,8 @@ if __name__ == "__main__":
     asset = "assets/"
     print(classpath)
 
-    os.chdir("temp")
-    os.system(f"java "
+    osname.chdir("temp")
+    osname.system(f"java "
               f"-Djava.library.path={native} "
               f"-cp {classpath} "
               f"net.minecraft.client.main.Main "

@@ -1,5 +1,6 @@
-import tkinter as tk
 import tkinter.ttk as ttk
+import urllib
+
 from tkinter import filedialog
 import os
 
@@ -7,9 +8,9 @@ import os
 Switch Skin
 '''
 
-class Page2(ttk.Frame):
-    def __init__(self, main, parent):
 
+class Page2(ttk.Frame):
+    def __init__(self, main, parent, profile):
         # Initialization
         super().__init__()
         self.main = main
@@ -39,6 +40,13 @@ class Page2(ttk.Frame):
 
         self.button_skin_preview = ttk.Button(self.frame2, text="Preview Skin", command=self.event_skin_preview)
         self.button_skin_preview.grid(row=0, column=2, sticky="ew", padx=10)
+
+        urllib.request.urlretrieve(profile['skins'][0]['url'], f"skin/skins/{profile['id']}.png")
+        self.new_skin_path = os.path.basename(f"skin/skins/{profile['id']}.png")
+        self.main.settings('skin_path', self.new_skin_path)
+        self.skin_path = self.new_skin_path
+        self.main.logging(f"Skin changed to {self.new_skin_path}")
+        self.label_skin.configure(text=f"Skin: {self.skin_path} ")
 
     def event_skin_preview(self):
         self.main.skin_preview(self.skin_path)
